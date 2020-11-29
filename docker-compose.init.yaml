@@ -25,6 +25,6 @@ services:
     image: certbot/dns-luadns:v1.5.0
     restart: "no"
     env_file: .env
-    entrypoint: "/bin/sh -c 'openssl dhparam -out /etc/nginx/common/ssl-dhparams.pem 2048; if [ -f /etc/nginx/conf.d/${MY_DOMAIN}.conf ]; then echo \"/etc/nginx/conf.d/${MY_DOMAIN}.conf config file exists! exit!\"; exit; fi; sed \"s/MY_DOMAIN/${MY_DOMAIN}/g\" /etc/nginx/common/domain.conf > /etc/nginx/conf.d/${MY_DOMAIN}.conf;'"
+    entrypoint: "/bin/sh -c 'if [ -f /etc/nginx/common/ssl-dhparams.pem ]; then echo \"/etc/nginx/common/ssl-dhparams.pem exists! continue\"; else openssl dhparam -out /etc/nginx/common/ssl-dhparams.pem 2048; fi; if [ -f /etc/nginx/conf.d/${MY_DOMAIN}.conf ]; then echo \"/etc/nginx/conf.d/${MY_DOMAIN}.conf config file exists! exit!\"; exit; fi; sed \"s/MY_DOMAIN/${MY_DOMAIN}/g\" /etc/nginx/common/domain.conf > /etc/nginx/conf.d/${MY_DOMAIN}.conf;'"
     volumes:
       - ./data/etc/nginx:/etc/nginx
