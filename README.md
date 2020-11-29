@@ -1,2 +1,2 @@
 # https-lan
-HTTPS gateway in LAN network
+HTTPS gateway in LAN
