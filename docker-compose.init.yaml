@@ -1,0 +1,30 @@
+# reference project: https://github.com/wmnnd/nginx-certbot
+# pull image from dockerhub
+version: '3'
+services:
+  # certbot init for DNS-01 with cloudflare
+  # not support free domain(freenom: tk, ml, ga, cf, gq)
+  common_certbot_cloudflare_init:
+    image: certbot/dns-cloudflare:v1.5.0
+    restart: "no"
+    env_file: .env
+    entrypoint: "/bin/sh -c 'echo \"dns_cloudflare_api_token = ${MY_CLOUDFLARE_TOKEN}\" > \"/etc/letsencrypt/cloudflare.ini\" && chmod 600 /etc/letsencrypt/cloudflare.ini && certbot certonly --dns-cloudflare -m ${MY_EMAIL} --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini -d ${MY_DOMAIN} -d *.${MY_DOMAIN}'"
+    volumes:
+      - ./data/etc/letsencrypt:/etc/letsencrypt
+  # certbot init for DNS-01 with luadns
+  # support free domain(freenom: tk, ml, ga, cf, gq)
+  common_certbot_luadns_init:
+    image: certbot/dns-luadns:v1.5.0
+    restart: "no"
+    env_file: .env
+    entrypoint: "/bin/sh -c 'echo \"\" > /etc/letsencrypt/luadns.ini && echo \"dns_luadns_email = ${MY_LUADNS_EMAIL}\" >> /etc/letsencrypt/luadns.ini && echo \"dns_luadns_token = ${MY_LUADNS_TOKEN}\" >> /etc/letsencrypt/luadns.ini && chmod 600 /etc/letsencrypt/luadns.ini && certbot certonly --dns-luadns -m ${MY_EMAIL} --dns-luadns-credentials /etc/letsencrypt/luadns.ini -d ${MY_DOMAIN} -d *.${MY_DOMAIN}'"
+    volumes:
+      - ./data/etc/letsencrypt:/etc/letsencrypt
+  # 
+  common_nginx_init:
+    image: certbot/dns-luadns:v1.5.0
+    restart: "no"
+    env_file: .env
+    entrypoint: "/bin/sh -c 'openssl dhparam -out /etc/nginx/common/ssl-dhparams.pem 2048; if [ -f /etc/nginx/conf.d/${MY_DOMAIN}.conf ]; then echo \"/etc/nginx/conf.d/${MY_DOMAIN}.conf config file exists! exit!\"; exit; fi; sed \"s/MY_DOMAIN/${MY_DOMAIN}/g\" /etc/nginx/common/domain.conf > /etc/nginx/conf.d/${MY_DOMAIN}.conf;'"
+    volumes:
+      - ./data/etc/nginx:/etc/nginx

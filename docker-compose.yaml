@@ -1,0 +1,65 @@
+# reference project: https://github.com/wmnnd/nginx-certbot
+# pull image from dockerhub
+version: '3'
+services:
+  # certbot job for DNS-01 with cloudflare
+  # using secure dns
+  common_certbot_cloudflare:
+    image: certbot/dns-cloudflare:v1.5.0
+    restart: unless-stopped
+    entrypoint: "/bin/sh -c 'echo \"wait dnscrypt 10s...\"; sleep 10s; trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./data/etc/letsencrypt:/etc/letsencrypt
+    dns: 172.253.253.253
+    networks:
+      - https_lan
+    depends_on:
+      - common_dnscrypt
+  # certbot job for DNS-01 with luadns
+  # using secure dns
+  common_certbot_luadns:
+    image: certbot/dns-luadns:v1.5.0
+    restart: unless-stopped
+    entrypoint: "/bin/sh -c 'echo \"wait dnscrypt 10s...\"; sleep 10s; trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./data/etc/letsencrypt:/etc/letsencrypt
+    dns: 172.253.253.253
+    networks:
+      - https_lan
+    depends_on:
+      - common_dnscrypt
+  # dnscrypt
+  # secure dns
+  common_dnscrypt:
+    image: mattbodholdt/dnscrypt-proxy:2.0.44
+    volumes:
+      - ./data/etc/dnscrypt-proxy:/etc/dnscrypt-proxy
+    restart: unless-stopped
+    networks:
+      https_lan:
+        ipv4_address: 172.253.253.253
+  # http gateway
+  # using secure dns
+  gateway_nginx:
+    image: nginx:1.19.0-alpine
+    restart: unless-stopped
+    dns: 172.253.253.253
+    volumes:
+      - ./data/etc/nginx/common-cert:/etc/nginx/common-cert
+      - ./data/etc/nginx/common:/etc/nginx/common
+      - ./data/etc/nginx/conf.d:/etc/nginx/conf.d
+      - ./data/etc/letsencrypt:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    depends_on:
+      - common_dnscrypt
+    networks:
+      - https_lan
+networks:
+  https_lan:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.253.253.0/16
