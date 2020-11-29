@@ -32,8 +32,6 @@ services:
   # secure dns
   common_dnscrypt:
     image: mattbodholdt/dnscrypt-proxy:2.0.44
-    volumes:
-      - ./data/etc/dnscrypt-proxy:/etc/dnscrypt-proxy
     restart: unless-stopped
     networks:
       https_lan:
