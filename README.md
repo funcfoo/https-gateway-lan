@@ -16,7 +16,7 @@ English is not my first language, if this document has a language grammar error,
 
 - The Luadns allowed changing A record to LAN IP, but many routes have RFC1918 problem, you can set the route whitelist
 
-- The Cloudflare doesn't allow config LAN IP, you can use a custom DNS server, or config the route DNS
+- We recommend using Luadns, The Cloudflare doesn't allow config LAN IP, you can use a custom DNS server, or config the route DNS
 
 ## Guide
 
