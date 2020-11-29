@@ -42,7 +42,7 @@ docker-compose -f ./docker-compose.init.yaml run --rm common_nginx_init
 # init certbot with luadns
 docker-compose -f ./docker-compose.init.yaml run --rm common_certbot_luadns_init 
 
-# init certbot with cloudflare
+# init certbot with cloudflare, We recommend using Luadns
 docker-compose -f ./docker-compose.init.yaml run --rm common_certbot_cloudflare_init
 
 ```
@@ -52,6 +52,6 @@ docker-compose -f ./docker-compose.init.yaml run --rm common_certbot_cloudflare_
 # run with luadns
 docker-compose up common_certbot_luadns gateway_nginx
 
-# run with Cloudflare
+# run with Cloudflare, We recommend using Luadns
 docker-compose up common_certbot_cloudflare gateway_nginx
 ```
