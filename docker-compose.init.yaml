@@ -20,7 +20,7 @@ services:
     entrypoint: "/bin/sh -c 'echo \"\" > /etc/letsencrypt/luadns.ini && echo \"dns_luadns_email = ${MY_LUADNS_EMAIL}\" >> /etc/letsencrypt/luadns.ini && echo \"dns_luadns_token = ${MY_LUADNS_TOKEN}\" >> /etc/letsencrypt/luadns.ini && chmod 600 /etc/letsencrypt/luadns.ini && certbot certonly --dns-luadns -m ${MY_EMAIL} --dns-luadns-credentials /etc/letsencrypt/luadns.ini -d ${MY_DOMAIN} -d *.${MY_DOMAIN}'"
     volumes:
       - ./data/etc/letsencrypt:/etc/letsencrypt
-  # 
+  # recreate dhparams && init domain.conf
   common_nginx_init:
     image: certbot/dns-luadns:v1.5.0
     restart: "no"
